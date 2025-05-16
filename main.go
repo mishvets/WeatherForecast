@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/hibiken/asynq"
 	_ "github.com/lib/pq" // Driver for PostgreSQL
 	"github.com/mishvets/WeatherForecast/api"
 	db "github.com/mishvets/WeatherForecast/db/sqlc"
 	"github.com/mishvets/WeatherForecast/util"
+	"github.com/mishvets/WeatherForecast/worker"
 )
 
 func main() {
@@ -21,10 +23,26 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	server := api.NewServer(store)
+
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.RedisAddress,
+	}
+
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+	go runTaskProcessor(redisOpt, store)
+	
+	server := api.NewServer(store, taskDistributor)
 
 	err = server.Start(config.ServerAddress)
 	if err != nil {
 		log.Fatal("cannot start server: ", err)
+	}
+}
+
+func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) {
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store)
+	log.Print("start task processor")
+	if err := taskProcessor.Start(); err != nil {
+		log.Fatal("cannot start task processor: ", err)
 	}
 }

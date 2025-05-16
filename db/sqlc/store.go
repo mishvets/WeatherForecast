@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+// Store defines all functions to execute db queries and transactions
 type Store interface {
 	Querier
 }

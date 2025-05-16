@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
 	db "github.com/mishvets/WeatherForecast/db/sqlc"
+	"github.com/mishvets/WeatherForecast/worker"
 )
 
 type subscribeRequest struct {
@@ -29,8 +31,6 @@ func (server *Server) subscribe(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
-	} else {
-		fmt.Println(req)
 	}
 
 	subscription, err := server.store.CreateSubscription(ctx, db.CreateSubscriptionParams(req))
@@ -43,10 +43,26 @@ func (server *Server) subscribe(ctx *gin.Context) {
 			}
 		}
 		// ctx.JSON(http.StatusInternalServerError, errorResponse(err)) // TODO: the provided swagger file doesn't contain this type of error
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	// TODO: send confirmation email
+	// TODO: use db transaction, as user can succ be created, but addTask - fail. User can't repeat this action
+	taskPayload := &worker.PayloadSendVerifyEmail{
+		Email: subscription.Email,
+	}
+	// opts := []asynq.Option{ // TODO: check if MaxRetry enought
+	// 	asynq.MaxRetry(10),
+	// 	asynq.ProcessIn(10 * time.Second),
+	// }
+	err = server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload, asynq.MaxRetry(10))
+	if err != nil {
+		// ctx.JSON(http.StatusInternalServerError, errorResponse(err)) // TODO: the provided swagger file doesn't contain this type of error
+		err = fmt.Errorf("failed to distribute task to send verify email - %w", err)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
 	resp := subscribeResponse{
 		ID:        subscription.ID,
 		Email:     subscription.Email,

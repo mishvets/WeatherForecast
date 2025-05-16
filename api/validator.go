@@ -1,7 +1,7 @@
 package api
 
 import (
-	"fmt"
+	"log"
 	"slices"
 
 	"github.com/go-playground/validator/v10"
@@ -10,7 +10,7 @@ import (
 
 var validFrequency validator.Func = func(fieldLevel validator.FieldLevel) bool {
 	if frequency, ok := fieldLevel.Field().Interface().(db.FrequencyEnum); ok {
-		fmt.Println("###", slices.Contains(db.AllFrequencyEnumValues(), frequency)) // TODO: delete
+		log.Println("###", slices.Contains(db.AllFrequencyEnumValues(), frequency)) // TODO: delete
 		return slices.Contains(db.AllFrequencyEnumValues(), frequency)
 	}
 	return false

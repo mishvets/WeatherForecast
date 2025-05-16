@@ -25,4 +25,7 @@ retest:
 server:
 	go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc retest test server
+redis:
+	docker run --name redis -p 6379:6379 -d redis:8-alpine
+
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc retest test server redis
