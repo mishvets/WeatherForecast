@@ -1,4 +1,4 @@
-package mail
+package mailer
 
 import (
 	"testing"
@@ -15,7 +15,7 @@ func TestSendEmailWithGmail(t *testing.T) {
 	config, err := util.LoadConfig("..")
 	require.NoError(t, err)
 
-	sender := newGmailSender(config.EmailSenderName, config.EmailSenderAdress, config.EmailSenderPassword)
+	sender := NewGmailSender(config.EmailSenderName, config.EmailSenderAdress, config.EmailSenderPassword)
 
 	subject := "A test mail"
 	content := `

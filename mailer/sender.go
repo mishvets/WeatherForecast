@@ -1,4 +1,4 @@
-package mail
+package mailer
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ type GmailSender struct {
 	fromEmailPassword string
 }
 
-func newGmailSender(name string, fromEmailAddress string, fromEmailPassword string) EmailSender {
+func NewGmailSender(name string, fromEmailAddress string, fromEmailPassword string) EmailSender {
 	return &GmailSender{
 		name:              name,
 		fromEmailAdress:   fromEmailAddress,

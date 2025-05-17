@@ -9,6 +9,7 @@ import (
 // Store defines all functions to execute db queries and transactions
 type Store interface {
 	Querier
+	SubscribeTx(ctx context.Context, arg SubscribeTxParams) (SubscribeTxResult, error)
 }
 
 // SQLStore providers all functions to execute SQL queries and transactions

@@ -8,6 +8,7 @@ import (
 	_ "github.com/lib/pq" // Driver for PostgreSQL
 	"github.com/mishvets/WeatherForecast/api"
 	db "github.com/mishvets/WeatherForecast/db/sqlc"
+	"github.com/mishvets/WeatherForecast/mailer"
 	"github.com/mishvets/WeatherForecast/util"
 	"github.com/mishvets/WeatherForecast/worker"
 )
@@ -29,8 +30,8 @@ func main() {
 	}
 
 	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
-	go runTaskProcessor(redisOpt, store)
-	
+	go runTaskProcessor(redisOpt, store, config)
+
 	server := api.NewServer(store, taskDistributor)
 
 	err = server.Start(config.ServerAddress)
@@ -39,8 +40,9 @@ func main() {
 	}
 }
 
-func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) {
-	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store)
+func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, config util.Config) {
+	mailer := mailer.NewGmailSender(config.EmailSenderName, config.EmailSenderAdress, config.EmailSenderPassword)
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer)
 	log.Print("start task processor")
 	if err := taskProcessor.Start(); err != nil {
 		log.Fatal("cannot start task processor: ", err)

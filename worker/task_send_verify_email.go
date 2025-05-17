@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -13,7 +12,7 @@ import (
 const TaskSendVerifyEmail = "task:send_verify_email"
 
 type PayloadSendVerifyEmail struct {
-	// Id int64 `json:"id"`
+	// Id int64 `json:"id"` //TODO: check
 	Email string `json:"email"`
 }
 
@@ -47,10 +46,18 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 
 	subscription, err := processor.store.GetSubscription(ctx, payload.Email)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return fmt.Errorf("subscription doesn't exist: %w", asynq.SkipRetry)
-		}
 		return fmt.Errorf("failed to get subsctiption: %w", err)
+	}
+
+	subject := "Subscription email for WeatherForecast"
+	content := fmt.Sprintf(
+		`Please, <a href="http://localhost:8080/confirm/%s">click here</a> to confirm your subscription!`,
+		subscription.Token,
+	)
+	to := []string{subscription.Email}
+	err = processor.emailSender.SendEmail(subject, content, to)
+	if err != nil {
+		return fmt.Errorf("failed to send verify email: %w", err)
 	}
 
 	log.Printf(

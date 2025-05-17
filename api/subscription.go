@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -33,7 +32,21 @@ func (server *Server) subscribe(ctx *gin.Context) {
 		return
 	}
 
-	subscription, err := server.store.CreateSubscription(ctx, db.CreateSubscriptionParams(req))
+	arg := db.SubscribeTxParams{
+		CreateSubscriptionParams: db.CreateSubscriptionParams(req),
+		AfterCreate: func(subscription db.Subscription) error {
+			taskPayload := &worker.PayloadSendVerifyEmail{
+				Email: subscription.Email,
+			}
+			opts := []asynq.Option{
+				asynq.MaxRetry(10),
+				asynq.ProcessIn(5 * time.Second),
+			}
+			return server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload, opts...)
+		},
+	}
+
+	txResult, err := server.store.SubscribeTx(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -47,28 +60,15 @@ func (server *Server) subscribe(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: use db transaction, as user can succ be created, but addTask - fail. User can't repeat this action
-	taskPayload := &worker.PayloadSendVerifyEmail{
-		Email: subscription.Email,
-	}
-	// opts := []asynq.Option{ // TODO: check if MaxRetry enought
-	// 	asynq.MaxRetry(10),
-	// 	asynq.ProcessIn(10 * time.Second),
-	// }
-	err = server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload, asynq.MaxRetry(10))
-	if err != nil {
-		// ctx.JSON(http.StatusInternalServerError, errorResponse(err)) // TODO: the provided swagger file doesn't contain this type of error
-		err = fmt.Errorf("failed to distribute task to send verify email - %w", err)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+	ctx.JSON(http.StatusOK, createSubscribeResp(txResult.Subscription))
+}
 
-	resp := subscribeResponse{
-		ID:        subscription.ID,
-		Email:     subscription.Email,
-		City:      subscription.City,
-		Frequency: subscription.Frequency,
-		CreatedAt: subscription.CreatedAt,
+func createSubscribeResp(s db.Subscription) subscribeResponse {
+	return subscribeResponse{
+		ID:        s.ID,
+		Email:     s.Email,
+		City:      s.City,
+		Frequency: s.Frequency,
+		CreatedAt: s.CreatedAt,
 	}
-	ctx.JSON(http.StatusOK, resp)
 }
