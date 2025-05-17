@@ -11,7 +11,9 @@ type Config struct {
 	EmailSenderName     string `mapstructure:"EMAIL_SENDER_NAME"`
 	EmailSenderAdress   string `mapstructure:"EMAIL_SENDER_ADDRESS"`
 	EmailSenderPassword string `mapstructure:"EMAIL_SENDER_PASSWORD"`
-	RedisAddress         string `mapstructure:"REDIS_ADDRESS"`
+	RedisAddress        string `mapstructure:"REDIS_ADDRESS"`
+	WeatherApiKey       string `mapstructure:"WEATHER_API_KEY"`
+	WeatherApiUrl       string `mapstructure:"WEATHER_API_URL"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

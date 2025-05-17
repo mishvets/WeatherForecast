@@ -9,6 +9,7 @@ import (
 	"github.com/mishvets/WeatherForecast/api"
 	db "github.com/mishvets/WeatherForecast/db/sqlc"
 	"github.com/mishvets/WeatherForecast/mailer"
+	"github.com/mishvets/WeatherForecast/service"
 	"github.com/mishvets/WeatherForecast/util"
 	"github.com/mishvets/WeatherForecast/worker"
 )
@@ -32,7 +33,8 @@ func main() {
 	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
 	go runTaskProcessor(redisOpt, store, config)
 
-	server := api.NewServer(store, taskDistributor)
+	weatherService := service.NewServiceWeather(config.WeatherApiUrl, config.WeatherApiKey)
+	server := api.NewServer(store, taskDistributor, weatherService)
 
 	err = server.Start(config.ServerAddress)
 	if err != nil {

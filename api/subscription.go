@@ -50,7 +50,7 @@ func (server *Server) subscribe(ctx *gin.Context) {
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
-			case "unique_violation", "":
+			case "unique_violation":
 				ctx.JSON(http.StatusConflict, errorResponse(err))
 				return
 			}

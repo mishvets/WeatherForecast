@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	db "github.com/mishvets/WeatherForecast/db/sqlc"
+	"github.com/mishvets/WeatherForecast/service"
 	"github.com/mishvets/WeatherForecast/worker"
 )
 
@@ -12,13 +13,15 @@ type Server struct {
 	store           db.Store
 	router          *gin.Engine
 	taskDistributor worker.TaskDistributor
+	weatherService  service.Service
 }
 
 // New server creates a new HTTP server and setup routing
-func NewServer(store db.Store, taskDistributor worker.TaskDistributor) *Server {
+func NewServer(store db.Store, taskDistributor worker.TaskDistributor, weatherService service.Service) *Server {
 	server := &Server{
-		store: store,
+		store:           store,
 		taskDistributor: taskDistributor,
+		weatherService:  weatherService,
 	}
 	router := gin.Default()
 
@@ -26,7 +29,7 @@ func NewServer(store db.Store, taskDistributor worker.TaskDistributor) *Server {
 		v.RegisterValidation("frequency", validFrequency)
 	}
 
-	// router.GET("/weather", server.getWeather)
+	router.GET("/weather", server.getWeather)
 
 	router.POST("/subscribe", server.subscribe)
 	// router.GET("/confirm/:token", server.confirm) // TODO: add city at this step
