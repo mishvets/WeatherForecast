@@ -62,9 +62,8 @@ func (processor *RedisTaskProcessor) ProcessTaskGetWeatherData(ctx context.Conte
 	weatherData, err := processor.weatherService.GetWeatherForCity(ctx, payload.City)
 	if err != nil {
 		if err.Error() == CityNotFoundError {
-			// TODO: check is empty data provided
-
-			// handleErrorCityNotFound(ctx, payload.Token, processor.emailSender, processor.store) //todo: fix and send cancelation email
+			// TODO: fix and send cancelation email
+			// handleErrorCityNotFound(ctx, payload.Token, processor.emailSender, processor.store)
 			// return fmt.Errorf("%s: %w", CityNotFoundError, asynq.SkipRetry)
 		} else {
 			return fmt.Errorf("%w", err)

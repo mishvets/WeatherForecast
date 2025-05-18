@@ -21,7 +21,8 @@ FOR NO KEY UPDATE;
 UPDATE weather_data
 SET temperature = $2,
     humidity = $3,
-    description = $4
+    description = $4,
+    updated_at = NOW()
 WHERE city = $1
 RETURNING *;
 

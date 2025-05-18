@@ -98,7 +98,8 @@ const updateWeather = `-- name: UpdateWeather :one
 UPDATE weather_data
 SET temperature = $2,
     humidity = $3,
-    description = $4
+    description = $4,
+    updated_at = NOW()
 WHERE city = $1
 RETURNING id, city, temperature, humidity, description, updated_at
 `

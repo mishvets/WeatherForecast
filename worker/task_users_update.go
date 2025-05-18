@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	TaskNotifyUsers = "task:notify_users"
-	MaxCitiesPerRequest = 50
+	TaskNotifyUsers     = "task:notify_users"
 )
 
 type PayloadNotifyUsers struct {
@@ -25,45 +24,33 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 		return fmt.Errorf("failed to unmarshal payload: %w", asynq.SkipRetry)
 	}
 
+	// TODO: брати ті, які проапдейчені більше 10 хв тому
 	cities, err := processor.store.GetCitiesForUpdate(ctx, payload.Frequency)
 	if err != nil {
 		return fmt.Errorf("failed to get cities: %w", err)
 	}
 
-	// for i := 0; i < len(cities); i += MaxCitiesPerRequest {
-	// 	end := i + MaxCitiesPerRequest
-	// 	if end > len(cities) {
-	// 		end = len(cities)
-	// 	}
-	// 	weatherData, err := processor.weatherService.GetWeatherForCity(ctx, city)
-	// 	if err != nil {
-	// 		return fmt.Errorf("fail to get weather slice: %w", err)
-	// 	}
+	for _, city := range cities {
+		weatherData, err := processor.weatherService.GetWeatherForCity(ctx, city)
+		if err != nil {
+			log.Printf("fail to get weather data for %s: %v", city, err)
+			continue
+		}
 
-	// 	// TODO: process create new weather record in separate func
-	// 	arg := db.CreateNewWeatherTxParams{
-	// 		CreateWeatherParams: db.CreateWeatherParams{
-	// 			City:        payload.City,
-	// 			Temperature: weatherData.Temperature,
-	// 			Humidity:    int32(weatherData.Humidity), // TODO: check int8
-	// 			Description: weatherData.Description,
-	// 		},
-	// 		ID: payload.ID,
-	// 	}
-	// 	err = processor.store.CreateNewWeatherTx(ctx, arg)
-	// 	if err != nil {
-	// 		if errors.Is(err, sql.ErrNoRows) {
-	// 			return fmt.Errorf("the requested subscription(%v) not exist anymore: %w", arg.ID, asynq.SkipRetry)
-	// 		}
-	// 		if pqErr, ok := err.(*pq.Error); ok {
-	// 			switch pqErr.Code.Name() {
-	// 			case "unique_violation":
-	// 				return fmt.Errorf("city(%s) already present: %w", payload.City, asynq.SkipRetry)
-	// 			}
-	// 		}
-	// 		return fmt.Errorf("failed to add weather data: %w", err)
-	// 	}
-	// }
+		arg := db.UpdateWeatherParams{
+			City:        city,
+			Temperature: weatherData.Temperature,
+			Humidity:    int32(weatherData.Humidity), // TODO: check int8
+			Description: weatherData.Description,
+		}
+
+		_, err = processor.store.UpdateWeather(ctx, arg)
+		if err != nil {
+			log.Printf("failed to update weather data for %s: %v", city, err)
+			continue
+		}
+		// TODO: формувати список з якими не вийшло і створювати окрему таску
+	}
 
 	log.Printf(
 		"ProcessTaskNotifyUsers: type - %v, payload - %s",

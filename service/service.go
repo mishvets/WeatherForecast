@@ -77,6 +77,7 @@ func (service *ServiceWeather) GetWeatherForCity(ctx context.Context, city strin
 
 	if weather.Error != nil {
 		if weather.Error.Code == 1006 {
+			result.Description = weather.Error.Message
 			err = fmt.Errorf("%s", CityNotFoundError)
 		} else {
 			err = fmt.Errorf("%s", weather.Error.Message)
