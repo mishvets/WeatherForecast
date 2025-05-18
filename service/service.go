@@ -14,7 +14,6 @@ const CityNotFoundError = "City not found"
 
 type Service interface {
 	GetWeatherForCity(ctx context.Context, city string) (GetWeatherForCityResult, error)
-	GetWeatherForCities(ctx context.Context, cities []string) ([]GetWeatherForCitiesResult, error)
 }
 
 type ServiceWeather struct {
@@ -91,56 +90,6 @@ func (service *ServiceWeather) GetWeatherForCity(ctx context.Context, city strin
 
 func createGetWeatherForCityResult(response weatherServiceRes) GetWeatherForCityResult {
 	return GetWeatherForCityResult{
-		Temperature: response.Current.TempC,
-		Humidity:    response.Current.Humidity,
-		Description: response.Current.Condition.Text,
-	}
-}
-
-type GetWeatherForCitiesResult struct {
-	City        string  `json:"city"`
-	Temperature float32 `json:"temperature"`
-	Humidity    int8    `json:"humidity"`
-	Description string  `json:"description"`
-}
-
-func (service *ServiceWeather) GetWeatherForCities(ctx context.Context, city []string) ([]GetWeatherForCitiesResult, error) {
-	var weather weatherServiceRes
-	var result []GetWeatherForCitiesResult
-
-	serviceUrl := fmt.Sprintf("%s?key=%s&q=%s", service.url, service.apiKey, city)
-
-	reqCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	body, err := util.GetRequest(reqCtx, serviceUrl)
-	if err != nil {
-		log.Printf("failed to make api call: url - %s, err - %v", serviceUrl, err) //TODO: check error
-		return result, err
-	}
-
-	err = json.Unmarshal(body, &weather)
-	if err != nil {
-		log.Printf("failed to to unmarshal api response: - %s, err - %s", body, err) //TODO: check error
-		return result, err
-		// log("fail to unmarshal api response - %s, err - %s", body, err)//TODO: check error
-	}
-
-	if weather.Error != nil {
-		if weather.Error.Code == 1006 {
-			err = fmt.Errorf("%s", CityNotFoundError)
-		} else {
-			err = fmt.Errorf("%s", weather.Error.Message)
-		}
-		return result, err
-	}
-
-	// result = createGetWeatherForCitiesResult(weather)
-	return result, nil
-}
-
-func createGetWeatherForCitiesResult(response weatherServiceRes) GetWeatherForCitiesResult {
-	return GetWeatherForCitiesResult{
 		Temperature: response.Current.TempC,
 		Humidity:    response.Current.Humidity,
 		Description: response.Current.Condition.Text,

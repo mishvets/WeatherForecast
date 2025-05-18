@@ -25,17 +25,17 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 		return fmt.Errorf("failed to unmarshal payload: %w", asynq.SkipRetry)
 	}
 
-	// cities, err := processor.store.GetCitiesForUpdate(ctx, payload.Frequency)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to get cities: %w", err)
-	// }
+	cities, err := processor.store.GetCitiesForUpdate(ctx, payload.Frequency)
+	if err != nil {
+		return fmt.Errorf("failed to get cities: %w", err)
+	}
 
 	// for i := 0; i < len(cities); i += MaxCitiesPerRequest {
 	// 	end := i + MaxCitiesPerRequest
 	// 	if end > len(cities) {
 	// 		end = len(cities)
 	// 	}
-	// 	weatherData, err := processor.weatherService.GetWeatherForCities(ctx, cities[i:end])
+	// 	weatherData, err := processor.weatherService.GetWeatherForCity(ctx, city)
 	// 	if err != nil {
 	// 		return fmt.Errorf("fail to get weather slice: %w", err)
 	// 	}
