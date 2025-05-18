@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const CityNotFoundError = "City not found"
+const CityNotFoundError = "City not found" // todo: create Error
 
 type getWeatherRequest struct {
 	City string `form:"city" binding:"required,min=1"` //TODO: add validation

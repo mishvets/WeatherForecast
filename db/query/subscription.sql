@@ -22,5 +22,8 @@ SET confirmed = $2
 WHERE token = $1
 RETURNING *;
 
--- name: DeleteSubscription :exec
-DELETE FROM subscriptions WHERE token = $1;
+-- name: DeleteSubscription :one
+DELETE FROM subscriptions WHERE token = $1 RETURNING token;
+
+-- name: IsSubscriptionExist :one
+SELECT EXISTS (SELECT 1 FROM subscriptions WHERE id = $1);

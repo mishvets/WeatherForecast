@@ -14,12 +14,13 @@ type Querier interface {
 	ConfirmSubscription(ctx context.Context, arg ConfirmSubscriptionParams) (Subscription, error)
 	CreateSubscription(ctx context.Context, arg CreateSubscriptionParams) (Subscription, error)
 	CreateWeather(ctx context.Context, arg CreateWeatherParams) (WeatherDatum, error)
-	DeleteSubscription(ctx context.Context, token uuid.UUID) error
+	DeleteSubscription(ctx context.Context, token uuid.UUID) (uuid.UUID, error)
 	DeleteWeather(ctx context.Context, city string) error
 	GetSubscription(ctx context.Context, email string) (Subscription, error)
 	GetSubscriptionForUpdate(ctx context.Context, token uuid.UUID) (Subscription, error)
 	GetWeather(ctx context.Context, city string) (WeatherDatum, error)
 	GetWeatherForUpdate(ctx context.Context, city string) (WeatherDatum, error)
+	IsSubscriptionExist(ctx context.Context, id int64) (bool, error)
 	UpdateWeather(ctx context.Context, arg UpdateWeatherParams) (WeatherDatum, error)
 }
 

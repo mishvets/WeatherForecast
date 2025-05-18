@@ -25,7 +25,7 @@ func GetRequest(ctx context.Context, url string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
 
-	log.Printf("api response: - %s, err - %s", responseByte, err) //TODO: delete
+	log.Printf("### api response: - %s, err - %s", responseByte, err) //TODO: delete
 
 	return responseByte, nil
 }

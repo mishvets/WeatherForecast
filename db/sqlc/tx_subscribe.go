@@ -7,21 +7,17 @@ type SubscribeTxParams struct {
 	AfterCreate func(subscription Subscription) error
 }
 
-type SubscribeTxResult struct {
-	Subscription Subscription
-}
-
-func (store *SQLStore) SubscribeTx(ctx context.Context, arg SubscribeTxParams) (SubscribeTxResult, error) {
-	var result SubscribeTxResult
+func (store *SQLStore) SubscribeTx(ctx context.Context, arg SubscribeTxParams) (Subscription, error) {
+	var result Subscription
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		result.Subscription, err = q.CreateSubscription(ctx, arg.CreateSubscriptionParams)
+		result, err = q.CreateSubscription(ctx, arg.CreateSubscriptionParams)
 		if err != nil {
 			return err
 		}
 
-		return arg.AfterCreate(result.Subscription)
+		return arg.AfterCreate(result)
 	})
 
 	return result, err

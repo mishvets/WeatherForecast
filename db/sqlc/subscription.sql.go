@@ -69,13 +69,14 @@ func (q *Queries) CreateSubscription(ctx context.Context, arg CreateSubscription
 	return i, err
 }
 
-const deleteSubscription = `-- name: DeleteSubscription :exec
-DELETE FROM subscriptions WHERE token = $1
+const deleteSubscription = `-- name: DeleteSubscription :one
+DELETE FROM subscriptions WHERE token = $1 RETURNING token
 `
 
-func (q *Queries) DeleteSubscription(ctx context.Context, token uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteSubscription, token)
-	return err
+func (q *Queries) DeleteSubscription(ctx context.Context, token uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, deleteSubscription, token)
+	err := row.Scan(&token)
+	return token, err
 }
 
 const getSubscription = `-- name: GetSubscription :one
@@ -117,4 +118,15 @@ func (q *Queries) GetSubscriptionForUpdate(ctx context.Context, token uuid.UUID)
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const isSubscriptionExist = `-- name: IsSubscriptionExist :one
+SELECT EXISTS (SELECT 1 FROM subscriptions WHERE id = $1)
+`
+
+func (q *Queries) IsSubscriptionExist(ctx context.Context, id int64) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isSubscriptionExist, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }

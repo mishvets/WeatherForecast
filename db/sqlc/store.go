@@ -4,12 +4,17 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 // Store defines all functions to execute db queries and transactions
 type Store interface {
 	Querier
-	SubscribeTx(ctx context.Context, arg SubscribeTxParams) (SubscribeTxResult, error)
+	SubscribeTx(ctx context.Context, arg SubscribeTxParams) (Subscription, error)
+	ConfirmSubscriptionTx(ctx context.Context, arg ConfirmSubscriptionTxParams) (uuid.UUID, error)
+	DeleteSubscriptionTx(ctx context.Context, arg DeleteSubscriptionTxParams) error
+	CreateNewWeatherTx(ctx context.Context, arg CreateNewWeatherTxParams) error
 }
 
 // SQLStore providers all functions to execute SQL queries and transactions

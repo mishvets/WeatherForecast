@@ -30,10 +30,10 @@ func main() {
 		Addr: config.RedisAddress,
 	}
 
-	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
-	go runTaskProcessor(redisOpt, store, config)
-
 	weatherService := service.NewServiceWeather(config.WeatherApiUrl, config.WeatherApiKey)
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+	go runTaskProcessor(redisOpt, store, config, weatherService)
+
 	server := api.NewServer(store, taskDistributor, weatherService)
 
 	err = server.Start(config.ServerAddress)
@@ -42,9 +42,9 @@ func main() {
 	}
 }
 
-func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, config util.Config) {
+func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, config util.Config, weatherService service.Service) {
 	mailer := mailer.NewGmailSender(config.EmailSenderName, config.EmailSenderAdress, config.EmailSenderPassword)
-	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer)
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer, weatherService)
 	log.Print("start task processor")
 	if err := taskProcessor.Start(); err != nil {
 		log.Fatal("cannot start task processor: ", err)
