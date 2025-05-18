@@ -14,6 +14,7 @@ type TaskProcessor interface {
 	Start() error
 	ProcessTaskSendVerifyEmail(ctx context.Context, task *asynq.Task) error
 	ProcessTaskGetWeatherData(ctx context.Context, task *asynq.Task) error
+	ProcessTaskNotifyUsers(ctx context.Context, task *asynq.Task) error
 }
 
 type RedisTaskProcessor struct {
@@ -48,6 +49,7 @@ func (processor *RedisTaskProcessor) Start() error {
 
 	mux.HandleFunc(TaskSendVerifyEmail, processor.ProcessTaskSendVerifyEmail)
 	mux.HandleFunc(TaskGetWeatherData, processor.ProcessTaskGetWeatherData)
+	mux.HandleFunc(TaskNotifyUsers, processor.ProcessTaskNotifyUsers)
 
 	return processor.server.Start(mux)
 }

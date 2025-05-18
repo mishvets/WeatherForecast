@@ -16,6 +16,7 @@ type Querier interface {
 	CreateWeather(ctx context.Context, arg CreateWeatherParams) (WeatherDatum, error)
 	DeleteSubscription(ctx context.Context, token uuid.UUID) (uuid.UUID, error)
 	DeleteWeather(ctx context.Context, city string) error
+	GetCitiesForUpdate(ctx context.Context, frequency FrequencyEnum) ([]string, error)
 	GetSubscription(ctx context.Context, email string) (Subscription, error)
 	GetSubscriptionForUpdate(ctx context.Context, token uuid.UUID) (Subscription, error)
 	GetWeather(ctx context.Context, city string) (WeatherDatum, error)

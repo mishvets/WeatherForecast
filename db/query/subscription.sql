@@ -27,3 +27,6 @@ DELETE FROM subscriptions WHERE token = $1 RETURNING token;
 
 -- name: IsSubscriptionExist :one
 SELECT EXISTS (SELECT 1 FROM subscriptions WHERE id = $1);
+
+-- name: GetCitiesForUpdate :many
+SELECT DISTINCT city FROM subscriptions WHERE confirmed = true AND frequency = $1;

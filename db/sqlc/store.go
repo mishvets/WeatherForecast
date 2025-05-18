@@ -15,6 +15,7 @@ type Store interface {
 	ConfirmSubscriptionTx(ctx context.Context, arg ConfirmSubscriptionTxParams) (uuid.UUID, error)
 	DeleteSubscriptionTx(ctx context.Context, arg DeleteSubscriptionTxParams) error
 	CreateNewWeatherTx(ctx context.Context, arg CreateNewWeatherTxParams) error
+	GetCitiesForUpdate(ctx context.Context, frequency FrequencyEnum) ([]string, error)
 }
 
 // SQLStore providers all functions to execute SQL queries and transactions

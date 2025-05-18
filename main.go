@@ -33,7 +33,8 @@ func main() {
 	weatherService := service.NewServiceWeather(config.WeatherApiUrl, config.WeatherApiKey)
 	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
 	go runTaskProcessor(redisOpt, store, config, weatherService)
-
+	go runTaskScheduler(redisOpt)
+	
 	server := api.NewServer(store, taskDistributor, weatherService)
 
 	err = server.Start(config.ServerAddress)
@@ -48,5 +49,13 @@ func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, config util
 	log.Print("start task processor")
 	if err := taskProcessor.Start(); err != nil {
 		log.Fatal("cannot start task processor: ", err)
+	}
+}
+
+func runTaskScheduler(redisOpt asynq.RedisClientOpt) {
+	taskScheduler := worker.NewRedisScheduler(redisOpt)
+	err := taskScheduler.Start()
+	if err != nil {
+		log.Fatal("cannot start taskScheduler: ", err)
 	}
 }

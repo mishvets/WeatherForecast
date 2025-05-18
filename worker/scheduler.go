@@ -1,0 +1,71 @@
+package worker
+
+import (
+	"encoding/json"
+	"log"
+
+	"github.com/hibiken/asynq"
+)
+
+type Scheduler interface {
+	Start() error
+}
+
+type RedisScheduler struct {
+	scheduler *asynq.Scheduler
+}
+
+func NewRedisScheduler(redisOpt asynq.RedisConnOpt) Scheduler {
+	scheduler := asynq.NewScheduler(
+		redisOpt,
+		nil,
+		// asynq.Config{
+		// 	ErrorHandler: asynq.ErrorHandlerFunc(func(ctx context.Context, task *asynq.Task, err error) {
+		// 		log.Printf(
+		// 			"Process task failed: type  - %v, payload - %s, error - %v",
+		// 			task.Type(), task.Payload(), err)
+		// 	}),
+		// },
+	)
+
+	return &RedisScheduler{
+		scheduler: scheduler,
+	}
+}
+
+func (userNotify *RedisScheduler) Start() error {
+	registerHourlyUpdates(userNotify)
+	registerDailyUpdates(userNotify)
+
+	return userNotify.scheduler.Start()
+}
+
+func registerHourlyUpdates(userNotify *RedisScheduler) {
+	payload, err := json.Marshal(PayloadNotifyUsers{
+		Frequency: "hourly",
+	})
+	if err != nil {
+		log.Fatalf("failed to marshal hourly task payload: %v", err)
+	}
+	// _, err = userNotify.scheduler.Register("0-9,11-59 * * * *", asynq.NewTask(TaskNotifyUsers, payload))
+	_, err = userNotify.scheduler.Register("0 * * * *", asynq.NewTask(TaskNotifyUsers, payload))
+	if err != nil {
+		log.Fatalf("scheduler task registration error: %v", err)
+	}
+}
+
+func registerDailyUpdates(userNotify *RedisScheduler) {
+	payload, err := json.Marshal(PayloadNotifyUsers{
+		Frequency: "daily",
+	})
+	if err != nil {
+		log.Fatalf("failed to marshal hourly task payload: %v", err)
+	}
+	// _, err = userNotify.scheduler.Register("10 * * * *", asynq.NewTask(TaskNotifyUsers, payload))
+	_, err = userNotify.scheduler.Register("0 8 * * *", asynq.NewTask(TaskNotifyUsers, payload))
+	if err != nil {
+		log.Fatalf("scheduler task registration error: %v", err)
+	}
+}
+
+// TODO: раз на день апдейтити всіх, а потім додатково тих хто hourly

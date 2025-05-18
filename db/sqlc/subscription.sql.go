@@ -79,6 +79,33 @@ func (q *Queries) DeleteSubscription(ctx context.Context, token uuid.UUID) (uuid
 	return token, err
 }
 
+const getCitiesForUpdate = `-- name: GetCitiesForUpdate :many
+SELECT DISTINCT city FROM subscriptions WHERE confirmed = true AND frequency = $1
+`
+
+func (q *Queries) GetCitiesForUpdate(ctx context.Context, frequency FrequencyEnum) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getCitiesForUpdate, frequency)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var city string
+		if err := rows.Scan(&city); err != nil {
+			return nil, err
+		}
+		items = append(items, city)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSubscription = `-- name: GetSubscription :one
 SELECT id, email, city, frequency, confirmed, token, created_at FROM subscriptions
 WHERE email = $1 LIMIT 1
