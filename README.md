@@ -151,9 +151,10 @@ The service uses **asynq.Scheduler** to fetch weather updates from [WeatherAPI.c
 
 - Send requests to [WeatherAPI.com](https://www.weatherapi.com/) for multiple cities in one query instead of separate requests (requires a paid subscription).
 
-- Optimize City Name Handling.
-  Different spellings of the same city generate separate requests to WeatherAPI. Using their location dictionary could help reduce redundant API calls.
-
-- Send a single email notification for all subscribers of a city while ensuring recipients are not visible to each other (e.g., using BCC).
+- Optimize City Name Handling. Different spellings of the same city generate separate requests to WeatherAPI. Using their location dictionary could help reduce redundant API calls.
 
 - Send Re-subscription Email if no data for requested city.
+
+- Check how long ago the weather was updated and if less than `delta` min, return data from the database rather than sending a new request to the API
+
+- When the task is triggered for `daily` updates, all confirmed subscribers must be updated (regardless of the subscription type). For `hourly` updates, only those with the appropriate **frequency** must be selected. In the current implementation, they are collected separately by subscription type.
