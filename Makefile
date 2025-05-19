@@ -28,4 +28,9 @@ server:
 redis:
 	docker run --name redis -p 6379:6379 -d redis:8-alpine
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc retest test server redis
+mock:
+	mockgen --package mockdb --destination db/mock/store.go github.com/mishvets/WeatherForecast/db/sqlc Store
+	mockgen --package mockworker --destination worker/mock/distributor.go github.com/mishvets/WeatherForecast/worker TaskDistributor
+	mockgen --package mockservice --destination service/mock/service.go github.com/mishvets/WeatherForecast/service Service
+
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc retest test server redis mock
