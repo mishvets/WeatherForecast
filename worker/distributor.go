@@ -17,6 +17,11 @@ type TaskDistributor interface {
 		payload *PayloadGetWeatherData,
 		optd ...asynq.Option,
 	) error
+	DistributeTaskSendNotifyEmails(
+		ctx context.Context,
+		payload *PayloadSendNotifyEmails,
+		opts ...asynq.Option,
+	) error
 }
 
 type RedisTaskDistributor struct {

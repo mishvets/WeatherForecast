@@ -106,6 +106,38 @@ func (q *Queries) GetCitiesForUpdate(ctx context.Context, frequency FrequencyEnu
 	return items, nil
 }
 
+const getEmailsForUpdate = `-- name: GetEmailsForUpdate :many
+SELECT email FROM subscriptions WHERE confirmed = true AND frequency = $1 AND city = $2
+`
+
+type GetEmailsForUpdateParams struct {
+	Frequency FrequencyEnum `json:"frequency"`
+	City      string        `json:"city"`
+}
+
+func (q *Queries) GetEmailsForUpdate(ctx context.Context, arg GetEmailsForUpdateParams) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getEmailsForUpdate, arg.Frequency, arg.City)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var email string
+		if err := rows.Scan(&email); err != nil {
+			return nil, err
+		}
+		items = append(items, email)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSubscription = `-- name: GetSubscription :one
 SELECT id, email, city, frequency, confirmed, token, created_at FROM subscriptions
 WHERE email = $1 LIMIT 1

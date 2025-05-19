@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	TaskNotifyUsers     = "task:notify_users"
+	TaskNotifyUsers = "task:notify_users"
 )
 
 type PayloadNotifyUsers struct {
@@ -32,7 +32,7 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 
 	for _, city := range cities {
 		weatherData, err := processor.weatherService.GetWeatherForCity(ctx, city)
-		if err != nil {
+		if err != nil && err.Error() != CityNotFoundError {
 			log.Printf("fail to get weather data for %s: %v", city, err)
 			continue
 		}
@@ -50,6 +50,14 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 			continue
 		}
 		// TODO: формувати список з якими не вийшло і створювати окрему таску
+		taskPayload := &PayloadSendNotifyEmails{
+			City:      city,
+			Frequency: db.FrequencyEnum(payload.Frequency),
+		}
+		opts := []asynq.Option{
+			asynq.MaxRetry(10),
+		}
+		processor.distributor.DistributeTaskSendNotifyEmails(ctx, taskPayload, opts...)
 	}
 
 	log.Printf(

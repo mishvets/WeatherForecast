@@ -15,6 +15,7 @@ type TaskProcessor interface {
 	ProcessTaskSendVerifyEmail(ctx context.Context, task *asynq.Task) error
 	ProcessTaskGetWeatherData(ctx context.Context, task *asynq.Task) error
 	ProcessTaskNotifyUsers(ctx context.Context, task *asynq.Task) error
+	ProcessTaskSendNotifyEmails(ctx context.Context, task *asynq.Task) error
 }
 
 type RedisTaskProcessor struct {
@@ -22,9 +23,10 @@ type RedisTaskProcessor struct {
 	store          db.Store
 	emailSender    mailer.EmailSender
 	weatherService service.Service
+	distributor    TaskDistributor
 }
 
-func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, emailSender mailer.EmailSender, weatherService service.Service) TaskProcessor {
+func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, emailSender mailer.EmailSender, weatherService service.Service, distributor TaskDistributor) TaskProcessor {
 	server := asynq.NewServer(
 		redisOpt,
 		asynq.Config{
@@ -41,6 +43,7 @@ func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, emailS
 		store:          store,
 		emailSender:    emailSender,
 		weatherService: weatherService,
+		distributor:    distributor,
 	}
 }
 
@@ -50,6 +53,7 @@ func (processor *RedisTaskProcessor) Start() error {
 	mux.HandleFunc(TaskSendVerifyEmail, processor.ProcessTaskSendVerifyEmail)
 	mux.HandleFunc(TaskGetWeatherData, processor.ProcessTaskGetWeatherData)
 	mux.HandleFunc(TaskNotifyUsers, processor.ProcessTaskNotifyUsers)
+	mux.HandleFunc(TaskSendNotifyEmails, processor.ProcessTaskSendNotifyEmails)
 
 	return processor.server.Start(mux)
 }

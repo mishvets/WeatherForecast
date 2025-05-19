@@ -12,7 +12,6 @@ import (
 const TaskSendVerifyEmail = "task:send_verify_email"
 
 type PayloadSendVerifyEmail struct {
-	// Id int64 `json:"id"` //TODO: check
 	Email string `json:"email"`
 }
 

@@ -30,3 +30,6 @@ SELECT EXISTS (SELECT 1 FROM subscriptions WHERE id = $1);
 
 -- name: GetCitiesForUpdate :many
 SELECT DISTINCT city FROM subscriptions WHERE confirmed = true AND frequency = $1;
+
+-- name: GetEmailsForUpdate :many
+SELECT email FROM subscriptions WHERE confirmed = true AND frequency = $1 AND city = $2;
