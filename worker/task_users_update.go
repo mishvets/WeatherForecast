@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hibiken/asynq"
 	db "github.com/mishvets/WeatherForecast/db/sqlc"
@@ -58,6 +59,7 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 		}
 		opts := []asynq.Option{
 			asynq.MaxRetry(10),
+			asynq.ProcessIn(5 * time.Second),
 		}
 		processor.distributor.DistributeTaskSendNotifyEmails(ctx, taskPayload, opts...)
 	}

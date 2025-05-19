@@ -54,7 +54,7 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 		subscription.Token,
 	)
 	to := []string{subscription.Email}
-	err = processor.emailSender.SendEmail(subject, content, to)
+	err = processor.emailSender.SendEmail(subject, content, to, []string{})
 	if err != nil {
 		return fmt.Errorf("failed to send verify email: %w", err)
 	}

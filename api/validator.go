@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"slices"
 
 	"github.com/go-playground/validator/v10"

@@ -23,6 +23,6 @@ func TestSendEmailWithGmail(t *testing.T) {
 	<p>This is a test msg with link to <a href="https://www.google.com.ua/?hl=uk">google</a>.</p>
 	`
 	to := []string{"weatherforecast099@gmail.com"}
-	err = sender.SendEmail(subject, content, to)
+	err = sender.SendEmail(subject, content, to, []string{})
 	require.NoError(t, err)
 }

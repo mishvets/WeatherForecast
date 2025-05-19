@@ -13,7 +13,7 @@ import (
 const TaskSendNotifyEmails = "task:send_notify_emails"
 
 type PayloadSendNotifyEmails struct {
-	City      string `json:"city"`
+	City      string           `json:"city"`
 	Frequency db.FrequencyEnum `json:"frequency"`
 }
 
@@ -69,13 +69,9 @@ func (processor *RedisTaskProcessor) ProcessTaskSendNotifyEmails(ctx context.Con
 		weather.Humidity,
 		weather.Description,
 	)
-	for _, email := range emails {
-		to := []string{email}
-		err = processor.emailSender.SendEmail(subject, content, to)
-		if err != nil {
-			// TODO: формувати список з якими не вийшло і створювати окрему таску(Записувати в БД кого проапдейтили)
-			log.Printf("failed to send notify email: %v", err)
-		}
+	err = processor.emailSender.SendEmail(subject, content, []string{}, emails)
+	if err != nil {
+		log.Printf("failed to send notify email: %v", err)
 	}
 	log.Printf(
 		"ProcessTaskSendNotifyEmails: type - %v, payload - %s",
