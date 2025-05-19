@@ -23,7 +23,7 @@ INSERT INTO weather_data (
 type CreateWeatherParams struct {
 	City        string  `json:"city"`
 	Temperature float32 `json:"temperature"`
-	Humidity    int32   `json:"humidity"`
+	Humidity    int16   `json:"humidity"`
 	Description string  `json:"description"`
 }
 
@@ -107,7 +107,7 @@ RETURNING id, city, temperature, humidity, description, updated_at
 type UpdateWeatherParams struct {
 	City        string  `json:"city"`
 	Temperature float32 `json:"temperature"`
-	Humidity    int32   `json:"humidity"`
+	Humidity    int16   `json:"humidity"`
 	Description string  `json:"description"`
 }
 

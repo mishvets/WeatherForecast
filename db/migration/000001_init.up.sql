@@ -16,17 +16,10 @@ CREATE TABLE weather_data (
     id BIGSERIAL PRIMARY KEY,
     city VARCHAR(100) NOT NULL UNIQUE,
     temperature REAL NOT NULL,
-    humidity INT NOT NULL,
+    humidity SMALLINT NOT NULL,
     description TEXT NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
--- CREATE TABLE weather_updates (
---     id SERIAL PRIMARY KEY,
---     subscription_id INT REFERENCES subscriptions(id) ON DELETE CASCADE,
---     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     weather_snapshot JSONB NOT NULL
--- );
 
 CREATE INDEX ON weather_data(city);
 CREATE INDEX ON subscriptions(email);

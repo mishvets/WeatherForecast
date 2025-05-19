@@ -68,4 +68,4 @@ func registerDailyUpdates(userNotify *RedisScheduler) {
 	}
 }
 
-// TODO: раз на день апдейтити всіх, а потім додатково тих хто hourly
+// TODO: update everyone once a day, and then additionally those who are hourly

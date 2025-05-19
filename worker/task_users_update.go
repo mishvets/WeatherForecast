@@ -27,7 +27,7 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 		return fmt.Errorf("failed to unmarshal payload: %w", asynq.SkipRetry)
 	}
 
-	// TODO: брати ті, які проапдейчені більше 10 хв тому
+	// TODO: select those updated more than 10 minutes ago
 	cities, err := processor.store.GetCitiesForUpdate(ctx, payload.Frequency)
 	if err != nil {
 		return fmt.Errorf("failed to get cities: %w", err)
@@ -37,13 +37,13 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 		weatherData, err := processor.weatherService.GetWeatherForCity(ctx, city)
 		if err != nil && !errors.Is(err, errs.CityNotFound) {
 			log.Printf("fail to get weather data for %s: %v", city, err)
-			continue
+			continue // TODO: add global error
 		}
 
 		arg := db.UpdateWeatherParams{
 			City:        city,
 			Temperature: weatherData.Temperature,
-			Humidity:    int32(weatherData.Humidity), // TODO: check int8
+			Humidity:    int16(weatherData.Humidity),
 			Description: weatherData.Description,
 		}
 
@@ -52,7 +52,6 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 			log.Printf("failed to update weather data for %s: %v", city, err)
 			continue
 		}
-		// TODO: формувати список з якими не вийшло і створювати окрему таску
 		taskPayload := &PayloadSendNotifyEmails{
 			City:      city,
 			Frequency: db.FrequencyEnum(payload.Frequency),

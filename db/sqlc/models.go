@@ -75,7 +75,7 @@ type WeatherDatum struct {
 	ID          int64     `json:"id"`
 	City        string    `json:"city"`
 	Temperature float32   `json:"temperature"`
-	Humidity    int32     `json:"humidity"`
+	Humidity    int16     `json:"humidity"`
 	Description string    `json:"description"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

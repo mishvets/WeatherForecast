@@ -66,12 +66,11 @@ func (processor *RedisTaskProcessor) ProcessTaskGetWeatherData(ctx context.Conte
 		}
 	}
 
-	// TODO: process create new weather record in separate func
 	arg := db.CreateNewWeatherTxParams{
 		CreateWeatherParams: db.CreateWeatherParams{
 			City:        payload.City,
 			Temperature: weatherData.Temperature,
-			Humidity:    int32(weatherData.Humidity), // TODO: check int8
+			Humidity:    int16(weatherData.Humidity),
 			Description: weatherData.Description,
 		},
 		ID: payload.ID,
