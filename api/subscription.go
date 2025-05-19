@@ -58,7 +58,7 @@ func (server *Server) subscribe(ctx *gin.Context) {
 				return
 			}
 		}
-		// ctx.JSON(http.StatusInternalServerError, errorResponse(err)) // TODO: the provided swagger file doesn't contain this type of error
+		// ctx.JSON(http.StatusInternalServerError, errorResponse(err)) // note: the provided swagger file doesn't contain this type of error
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -99,7 +99,7 @@ func (server *Server) confirm(ctx *gin.Context) {
 		Confirmed: true,
 	},
 		AfterConfirm: func(subscription db.Subscription) error {
-			taskPayload := &worker.PayloadGetWeatherData{
+			taskPayload := &worker.PayloadCreateWeatherData{
 				ID: subscription.ID,
 				Token: subscription.Token,
 				Email: subscription.Email,
@@ -108,7 +108,7 @@ func (server *Server) confirm(ctx *gin.Context) {
 			opts := []asynq.Option{
 				asynq.MaxRetry(10),
 			}
-			return server.taskDistributor.DistributeTaskGetWeatherData(ctx, taskPayload, opts...)
+			return server.taskDistributor.DistributeTaskCreateWeatherData(ctx, taskPayload, opts...)
 		},
 	}
 

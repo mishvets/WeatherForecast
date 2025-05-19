@@ -19,13 +19,6 @@ func NewRedisScheduler(redisOpt asynq.RedisConnOpt) Scheduler {
 	scheduler := asynq.NewScheduler(
 		redisOpt,
 		nil,
-		// asynq.Config{
-		// 	ErrorHandler: asynq.ErrorHandlerFunc(func(ctx context.Context, task *asynq.Task, err error) {
-		// 		log.Printf(
-		// 			"Process task failed: type  - %v, payload - %s, error - %v",
-		// 			task.Type(), task.Payload(), err)
-		// 	}),
-		// },
 	)
 
 	return &RedisScheduler{
@@ -47,8 +40,9 @@ func registerHourlyUpdates(userNotify *RedisScheduler) {
 	if err != nil {
 		log.Fatalf("failed to marshal hourly task payload: %v", err)
 	}
+	// note: for testing
 	_, err = userNotify.scheduler.Register("*/1 * * * *", asynq.NewTask(TaskNotifyUsers, payload))
-	// _, err = userNotify.scheduler.Register("0 * * * *", asynq.NewTask(TaskNotifyUsers, payload)) //TODO: uncoment
+	_, err = userNotify.scheduler.Register("0 * * * *", asynq.NewTask(TaskNotifyUsers, payload))
 	if err != nil {
 		log.Fatalf("scheduler task registration error: %v", err)
 	}
@@ -61,8 +55,9 @@ func registerDailyUpdates(userNotify *RedisScheduler) {
 	if err != nil {
 		log.Fatalf("failed to marshal hourly task payload: %v", err)
 	}
+	// note: for testing
 	_, err = userNotify.scheduler.Register("*/2 * * * *", asynq.NewTask(TaskNotifyUsers, payload))
-	// _, err = userNotify.scheduler.Register("0 8 * * *", asynq.NewTask(TaskNotifyUsers, payload)) //TODO: uncoment
+	_, err = userNotify.scheduler.Register("0 8 * * *", asynq.NewTask(TaskNotifyUsers, payload))
 	if err != nil {
 		log.Fatalf("scheduler task registration error: %v", err)
 	}

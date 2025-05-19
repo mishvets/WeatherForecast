@@ -56,5 +56,3 @@ func (sender *GmailSender) SendEmail(
 	smtpAuth := smtp.PlainAuth("", sender.fromEmailAdress, sender.fromEmailPassword, smtpAuthAddress)
 	return e.Send(smtpServerAddress, smtpAuth)
 }
-
-//TODO: change email adress in app.env

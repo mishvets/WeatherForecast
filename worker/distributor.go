@@ -12,9 +12,9 @@ type TaskDistributor interface {
 		payload *PayloadSendVerifyEmail,
 		optd ...asynq.Option,
 	) error
-	DistributeTaskGetWeatherData(
+	DistributeTaskCreateWeatherData(
 		ctx context.Context,
-		payload *PayloadGetWeatherData,
+		payload *PayloadCreateWeatherData,
 		optd ...asynq.Option,
 	) error
 	DistributeTaskSendNotifyEmails(

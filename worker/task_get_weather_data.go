@@ -17,40 +17,40 @@ import (
 
 // TODO: rename to createWeatherData
 const (
-	TaskGetWeatherData = "task:get_weather_data"
+	TaskCreateWeatherData = "task:create_weather_data"
 )
 
-type PayloadGetWeatherData struct {
+type PayloadCreateWeatherData struct {
 	ID    int64     `json:"id"`
 	Token uuid.UUID `json:"token"`
 	Email string    `json:"email"`
 	City  string    `json:"city"`
 }
 
-func (distributor *RedisTaskDistributor) DistributeTaskGetWeatherData(
+func (distributor *RedisTaskDistributor) DistributeTaskCreateWeatherData(
 	ctx context.Context,
-	payload *PayloadGetWeatherData,
+	payload *PayloadCreateWeatherData,
 	opts ...asynq.Option,
 ) error {
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("failed to marshal task payload: %w", err)
 	}
-	task := asynq.NewTask(TaskGetWeatherData, jsonPayload, opts...)
+	task := asynq.NewTask(TaskCreateWeatherData, jsonPayload, opts...)
 	taskInfo, err := distributor.client.EnqueueContext(ctx, task)
 	if err != nil {
 		return fmt.Errorf("failed to enqueue task: %w", err)
 	}
 
 	log.Printf(
-		"DistributeTaskGetWeatherData: type  - %v, payload - %s, queue - %v, max_retry - %v",
+		"DistributeTaskCreateWeatherData: type  - %v, payload - %s, queue - %v, max_retry - %v",
 		task.Type(), task.Payload(), taskInfo.Queue, taskInfo.MaxRetry,
 	)
 	return nil
 }
 
-func (processor *RedisTaskProcessor) ProcessTaskGetWeatherData(ctx context.Context, task *asynq.Task) error {
-	var payload PayloadGetWeatherData
+func (processor *RedisTaskProcessor) ProcessTaskCreateWeatherData(ctx context.Context, task *asynq.Task) error {
+	var payload PayloadCreateWeatherData
 	if err := json.Unmarshal(task.Payload(), &payload); err != nil {
 		return fmt.Errorf("failed to unmarshal payload: %w", asynq.SkipRetry)
 	}
@@ -89,7 +89,7 @@ func (processor *RedisTaskProcessor) ProcessTaskGetWeatherData(ctx context.Conte
 		return fmt.Errorf("failed to add weather data: %w", err)
 	}
 	log.Printf(
-		"ProcessTaskGetWeatherData: type - %v, payload - %s",
+		"ProcessTaskCreateWeatherData: type - %v, payload - %s",
 		task.Type(), task.Payload(),
 	)
 	return nil

@@ -42,23 +42,23 @@ func (m *MockTaskDistributor) EXPECT() *MockTaskDistributorMockRecorder {
 	return m.recorder
 }
 
-// DistributeTaskGetWeatherData mocks base method.
-func (m *MockTaskDistributor) DistributeTaskGetWeatherData(ctx context.Context, payload *worker.PayloadGetWeatherData, optd ...asynq.Option) error {
+// DistributeTaskCreateWeatherData mocks base method.
+func (m *MockTaskDistributor) DistributeTaskCreateWeatherData(ctx context.Context, payload *worker.PayloadCreateWeatherData, optd ...asynq.Option) error {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, payload}
 	for _, a := range optd {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "DistributeTaskGetWeatherData", varargs...)
+	ret := m.ctrl.Call(m, "DistributeTaskCreateWeatherData", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DistributeTaskGetWeatherData indicates an expected call of DistributeTaskGetWeatherData.
-func (mr *MockTaskDistributorMockRecorder) DistributeTaskGetWeatherData(ctx, payload any, optd ...any) *gomock.Call {
+// DistributeTaskCreateWeatherData indicates an expected call of DistributeTaskCreateWeatherData.
+func (mr *MockTaskDistributorMockRecorder) DistributeTaskCreateWeatherData(ctx, payload any, optd ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, payload}, optd...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistributeTaskGetWeatherData", reflect.TypeOf((*MockTaskDistributor)(nil).DistributeTaskGetWeatherData), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DistributeTaskCreateWeatherData", reflect.TypeOf((*MockTaskDistributor)(nil).DistributeTaskCreateWeatherData), varargs...)
 }
 
 // DistributeTaskSendNotifyEmails mocks base method.

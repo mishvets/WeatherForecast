@@ -37,7 +37,7 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 		weatherData, err := processor.weatherService.GetWeatherForCity(ctx, city)
 		if err != nil && !errors.Is(err, errs.CityNotFound) {
 			log.Printf("fail to get weather data for %s: %v", city, err)
-			continue // TODO: add global error
+			continue
 		}
 
 		arg := db.UpdateWeatherParams{
