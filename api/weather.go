@@ -1,15 +1,15 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mishvets/WeatherForecast/internal/errs"
 )
 
-const CityNotFoundError = "City not found" // todo: create Error
-
 type getWeatherRequest struct {
-	City string `form:"city" binding:"required,min=1"` //TODO: add validation
+	City string `form:"city" binding:"required,min=1"`
 }
 
 func (server *Server) getWeather(ctx *gin.Context) {
@@ -21,7 +21,7 @@ func (server *Server) getWeather(ctx *gin.Context) {
 
 	weatherRes, err := server.weatherService.GetWeatherForCity(ctx, req.City)
 	if err != nil {
-		if err.Error() == CityNotFoundError {
+		if errors.Is(err, errs.CityNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}

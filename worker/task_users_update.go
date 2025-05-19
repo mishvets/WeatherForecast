@@ -3,11 +3,13 @@ package worker
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 
 	"github.com/hibiken/asynq"
 	db "github.com/mishvets/WeatherForecast/db/sqlc"
+	"github.com/mishvets/WeatherForecast/internal/errs"
 )
 
 const (
@@ -32,7 +34,7 @@ func (processor *RedisTaskProcessor) ProcessTaskNotifyUsers(ctx context.Context,
 
 	for _, city := range cities {
 		weatherData, err := processor.weatherService.GetWeatherForCity(ctx, city)
-		if err != nil && err.Error() != CityNotFoundError {
+		if err != nil && !errors.Is(err, errs.CityNotFound) {
 			log.Printf("fail to get weather data for %s: %v", city, err)
 			continue
 		}

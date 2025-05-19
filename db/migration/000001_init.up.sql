@@ -4,7 +4,7 @@ CREATE TYPE frequency_enum AS ENUM ('daily', 'hourly');
 CREATE TABLE subscriptions (
     -- Check is id really needed
     id BIGSERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE, -- TODO: maybe create not uniq
+    email VARCHAR(255) NOT NULL UNIQUE,
     city VARCHAR(100) NOT NULL,
     frequency frequency_enum NOT NULL,
     confirmed BOOLEAN NOT NULL DEFAULT FALSE,

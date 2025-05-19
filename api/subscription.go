@@ -77,7 +77,7 @@ func createSubscribeResp(s db.Subscription) subscribeResponse {
 }
 
 type uriTokenRequest struct {
-	Token string `json:"token" uri:"token" binding:"required,min=36,max=36"` //TODO: add validation
+	Token string `json:"token" uri:"token" binding:"required,min=36,max=36"`
 }
 
 func (server *Server) confirm(ctx *gin.Context) {

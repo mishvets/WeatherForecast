@@ -12,12 +12,12 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
 	db "github.com/mishvets/WeatherForecast/db/sqlc"
+	"github.com/mishvets/WeatherForecast/internal/errs"
 )
 
 // TODO: rename to createWeatherData
 const (
 	TaskGetWeatherData = "task:get_weather_data"
-	CityNotFoundError  = "City not found" // todo: create Error
 )
 
 type PayloadGetWeatherData struct {
@@ -50,10 +50,6 @@ func (distributor *RedisTaskDistributor) DistributeTaskGetWeatherData(
 }
 
 func (processor *RedisTaskProcessor) ProcessTaskGetWeatherData(ctx context.Context, task *asynq.Task) error {
-	log.Printf(
-		"ProcessTaskGetWeatherData start: type - %v, payload - %s",
-		task.Type(), task.Payload(),
-	) // todo: delete
 	var payload PayloadGetWeatherData
 	if err := json.Unmarshal(task.Payload(), &payload); err != nil {
 		return fmt.Errorf("failed to unmarshal payload: %w", asynq.SkipRetry)
@@ -61,10 +57,10 @@ func (processor *RedisTaskProcessor) ProcessTaskGetWeatherData(ctx context.Conte
 
 	weatherData, err := processor.weatherService.GetWeatherForCity(ctx, payload.City)
 	if err != nil {
-		if err.Error() == CityNotFoundError {
+		if errors.Is(err, errs.CityNotFound) {
 			// TODO: fix and send cancelation email
 			// handleErrorCityNotFound(ctx, payload.Token, processor.emailSender, processor.store)
-			// return fmt.Errorf("%s: %w", CityNotFoundError, asynq.SkipRetry)
+			// return fmt.Errorf("%s: %w", errs.CityNotFound, asynq.SkipRetry)
 		} else {
 			return fmt.Errorf("%w", err)
 		}

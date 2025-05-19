@@ -7,10 +7,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/mishvets/WeatherForecast/internal/errs"
 	"github.com/mishvets/WeatherForecast/util"
 )
-
-const CityNotFoundError = "City not found"
 
 type Service interface {
 	GetWeatherForCity(ctx context.Context, city string) (GetWeatherForCityResult, error)
@@ -64,21 +63,20 @@ func (service *ServiceWeather) GetWeatherForCity(ctx context.Context, city strin
 
 	body, err := util.GetRequest(reqCtx, serviceUrl)
 	if err != nil {
-		log.Printf("failed to make api call: url - %s, err - %v", serviceUrl, err) //TODO: check error
+		log.Printf("Error making API call. URL: %s, Error: %v", serviceUrl, err)
 		return result, err
 	}
 
 	err = json.Unmarshal(body, &weather)
 	if err != nil {
-		log.Printf("failed to to unmarshal api response: - %s, err - %s", body, err) //TODO: check error
+		log.Printf("Error unmarshaling API response. Body: %s, Error: %v", body, err)
 		return result, err
-		// log("fail to unmarshal api response - %s, err - %s", body, err)//TODO: check error
 	}
 
 	if weather.Error != nil {
 		if weather.Error.Code == 1006 {
 			result.Description = weather.Error.Message
-			err = fmt.Errorf("%s", CityNotFoundError)
+			err = errs.CityNotFound
 		} else {
 			err = fmt.Errorf("%s", weather.Error.Message)
 		}

@@ -32,7 +32,7 @@ func NewServer(store db.Store, taskDistributor worker.TaskDistributor, weatherSe
 	router.GET("/weather", server.getWeather)
 
 	router.POST("/subscribe", server.subscribe)
-	router.GET("/confirm/:token", server.confirm) // TODO: add city at this step
+	router.GET("/confirm/:token", server.confirm)
 	router.GET("/unsubscribe/:token", server.unsubscribe)
 
 	server.router = router
