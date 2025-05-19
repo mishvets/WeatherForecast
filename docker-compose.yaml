@@ -1,0 +1,29 @@
+name: "weatherForecast"
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=weather_forecast
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "root", "-d", "weather_forecast"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:8-alpine
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/weather_forecast?sslmode=disable
+      - REDIS_ADDRESS=redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
